@@ -14,9 +14,9 @@ func NewService() *Service {
 }
 
 func (s *Service) RegisterHandlers(router *gin.Engine) {
-	router.GET("/games", s.Get)
+	router.GET("/games", s.get)
 }
 
-func (s *Service) Get(gc *gin.Context) {
+func (s *Service) get(gc *gin.Context) {
 	gc.IndentedJSON(http.StatusOK, "list of games here")
 }
