@@ -1,12 +1,10 @@
 package users
 
 import (
-	"fmt"
-	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -17,10 +15,12 @@ func NewService() *Service {
 }
 
 func (s *Service) RegisterHandlers(router *gin.Engine) {
-	router.GET("/users/random", s.getRandomUser)
+	router.GET("/users/create", s.getUUID)
 }
 
-func (s *Service) getRandomUser(gc *gin.Context) {
-	rand.Seed(time.Now().Unix())
-	gc.IndentedJSON(http.StatusOK, fmt.Sprint("User", rand.Intn(100)))
+func (s *Service) getUUID(gc *gin.Context) {
+	println("hiii")
+	res := make(map[string]string)
+	res["UUID"] = uuid.New().String()
+	gc.IndentedJSON(http.StatusOK, res)
 }
