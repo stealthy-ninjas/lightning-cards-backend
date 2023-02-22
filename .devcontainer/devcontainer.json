@@ -8,8 +8,16 @@
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/devcontainers-contrib/features/npm-package:1": {"package": "nodemon"}
-	}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
 
+	"forwardPorts": ["5433:5432"]
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
