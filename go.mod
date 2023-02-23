@@ -2,9 +2,12 @@ module stealthy-ninjas/lightning-cards
 
 go 1.19
 
-require github.com/gin-gonic/gin v1.8.2
+require (
+	github.com/gin-gonic/gin v1.8.2
+	github.com/google/uuid v1.3.0
+)
 
-require github.com/google/uuid v1.3.0 // indirect
+require github.com/lib/pq v1.10.7 // indirect
 
 require (
 	github.com/gin-contrib/cors v1.4.0
