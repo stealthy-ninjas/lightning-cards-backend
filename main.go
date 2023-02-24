@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 	"stealthy-ninjas/lightning-cards/api/games"
-	"stealthy-ninjas/lightning-cards/api/users"
+	"stealthy-ninjas/lightning-cards/api/players"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,12 +12,12 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:5173"},
+		AllowOrigins: []string{"http://127.0.0.1:5173"},
 	}))
 
 	// handlers
 	gameService := games.NewService()
-	userService := users.NewService()
+	userService := players.NewService()
 	gameService.RegisterHandlers(router)
 	userService.RegisterHandlers(router)
 	router.GET("/health", healthCheck)

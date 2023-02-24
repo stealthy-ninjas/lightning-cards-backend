@@ -22,6 +22,19 @@ CREATE TABLE public.center_deck (
 );
 
 
+-- public.gestures definition
+
+-- Drop table
+
+-- DROP TABLE public.gestures;
+
+CREATE TABLE public.gestures (
+	id uuid NOT NULL,
+	value varchar NOT NULL,
+	CONSTRAINT gestures_pk PRIMARY KEY (id)
+);
+
+
 -- public.center_deck_cards definition
 
 -- Drop table
@@ -44,10 +57,10 @@ CREATE TABLE public.center_deck_cards (
 
 CREATE TABLE public.rooms (
 	id uuid NOT NULL,
-	center_deck_id varchar NOT NULL,
+	center_deck_id uuid NOT NULL,
 	game_status bool NOT NULL,
 	CONSTRAINT rooms_pk PRIMARY KEY (id),
-	CONSTRAINT rooms_fk FOREIGN KEY (id) REFERENCES public.center_deck(id) ON DELETE CASCADE ON UPDATE CASCADE
+	CONSTRAINT rooms_fk FOREIGN KEY (center_deck_id) REFERENCES public.center_deck(id)
 );
 
 
@@ -61,8 +74,26 @@ CREATE TABLE public.players (
 	id uuid NOT NULL,
 	room_id uuid NULL,
 	username varchar NOT NULL,
+	ready bool NOT NULL DEFAULT false,
 	CONSTRAINT players_pk PRIMARY KEY (id),
 	CONSTRAINT players_fk FOREIGN KEY (id) REFERENCES public.rooms(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+
+-- public.room_gestures definition
+
+-- Drop table
+
+-- DROP TABLE public.room_gestures;
+
+CREATE TABLE public.room_gestures (
+	room_id uuid NOT NULL,
+	card_id varchar NOT NULL,
+	gesture_id uuid NOT NULL,
+	CONSTRAINT room_gestures_pk PRIMARY KEY (room_id, card_id),
+	CONSTRAINT room_gestures_fk FOREIGN KEY (room_id) REFERENCES public.rooms(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT room_gestures_fk_1 FOREIGN KEY (card_id) REFERENCES public.cards(value) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT room_gestures_fk_2 FOREIGN KEY (gesture_id) REFERENCES public.gestures(id) ON DELETE CASCADE
 );
 
 
@@ -111,3 +142,5 @@ CREATE TABLE public.player_cards (
 	CONSTRAINT player_cards_fk FOREIGN KEY (player_id) REFERENCES public.players(id),
 	CONSTRAINT player_cards_fk_1 FOREIGN KEY (card_value) REFERENCES public.cards(value)
 );
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
