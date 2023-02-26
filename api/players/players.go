@@ -16,7 +16,7 @@ func NewService() *Service {
 }
 
 func (s *Service) RegisterHandlers(router *gin.Engine) {
-	router.GET("/users/create", s.createUser)
+	router.GET("/players/create", s.createUser)
 }
 
 func (s *Service) createUser(gc *gin.Context) {
@@ -38,5 +38,4 @@ func (s *Service) createUser(gc *gin.Context) {
 	}
 	println(uuid)
 	gc.IndentedJSON(http.StatusOK, res)
-
 }

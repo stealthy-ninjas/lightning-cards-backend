@@ -7,7 +7,11 @@ require (
 	github.com/google/uuid v1.3.0
 )
 
-require github.com/lib/pq v1.10.7 // indirect
+require (
+	github.com/klauspost/compress v1.10.3 // indirect
+	github.com/lib/pq v1.10.7 // indirect
+	nhooyr.io/websocket v1.8.7 // indirect
+)
 
 require (
 	github.com/gin-contrib/cors v1.4.0

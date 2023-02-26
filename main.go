@@ -17,9 +17,9 @@ func main() {
 
 	// handlers
 	gameService := games.NewService()
-	userService := players.NewService()
+	playerService := players.NewService()
 	gameService.RegisterHandlers(router)
-	userService.RegisterHandlers(router)
+	playerService.RegisterHandlers(router)
 	router.GET("/health", healthCheck)
 
 	router.Run("localhost:8080")
