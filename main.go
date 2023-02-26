@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"stealthy-ninjas/lightning-cards/api/games"
 	"stealthy-ninjas/lightning-cards/api/players"
+	"stealthy-ninjas/lightning-cards/api/sockets"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -18,9 +20,13 @@ func main() {
 	// handlers
 	gameService := games.NewService()
 	playerService := players.NewService()
+	socketService := sockets.Server{
+		Logf: log.Printf,
+	}
 	gameService.RegisterHandlers(router)
 	playerService.RegisterHandlers(router)
 	router.GET("/health", healthCheck)
+	router.GET("/ws", socketService.ServeHttp)
 
 	router.Run("localhost:8080")
 }
