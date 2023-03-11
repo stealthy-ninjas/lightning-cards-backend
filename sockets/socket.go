@@ -2,58 +2,66 @@ package sockets
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"time"
+	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"nhooyr.io/websocket"
 )
 
 type Server struct {
-	Logf func(f string, v ...interface{})
 }
 
 func (s Server) ServeHttp(gc *gin.Context) {
 	w := gc.Writer
 	r := gc.Request
 	c, err := websocket.Accept(w, r, &websocket.AcceptOptions{
-		Subprotocols:   []string{"lc.com"},
+		Subprotocols:   []string{"lc"},
 		OriginPatterns: []string{"*"},
 	})
+
 	if err != nil {
-		s.Logf("%v", err)
+		log.Println(err)
 		return
 	}
-	defer c.Close(websocket.StatusInternalError, "The sky is pink")
+
+	defer c.Close(websocket.StatusInternalError, "Connection closing...")
 
 	for {
 		err = sayHi(r.Context(), c)
-		if websocket.CloseStatus(err) == websocket.StatusNormalClosure {
+
+		if websocket.CloseStatus(err) == websocket.StatusGoingAway {
+			println("closing")
 			return
 		}
 	}
+
 }
 
 func sayHi(ctx context.Context, c *websocket.Conn) error {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
+	println("blocking now...")
 	typ, r, err := c.Reader(ctx)
+	println("omg message")
 	if err != nil {
+		println("xd", err.Error())
 		return err
 	}
 
-	w, err := c.Writer(ctx, typ)
+	err = c.Write(ctx, typ, []byte("such cool"))
 	if err != nil {
-		return err
+		println("ERMG ERR")
+	}
+	buf := new(strings.Builder)
+	_, err = io.Copy(buf, r)
+	println("clients msg was: ", buf.String())
+	if err != nil {
+		println("ERMG ERR")
 	}
 
-	_, err = io.Copy(w, r)
-	if err != nil {
-		return fmt.Errorf("failed to io copy: %w", err)
-	}
-
-	err = w.Close()
+	_, err = r.Read([]byte{})
 	return err
 }
