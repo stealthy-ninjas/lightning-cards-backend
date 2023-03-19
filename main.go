@@ -5,18 +5,18 @@ import (
 	"net/http"
 	"stealthy-ninjas/lightning-cards/api/games"
 	"stealthy-ninjas/lightning-cards/api/players"
+	"stealthy-ninjas/lightning-cards/models"
 	"stealthy-ninjas/lightning-cards/sockets"
-	"stealthy-ninjas/lightning-cards/types"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 // create the global state
-var GlobalRooms = make(types.Rooms)
+var GlobalRooms = make(models.Rooms)
 
 func main() {
-	rooms := types.Rooms{}
+	rooms := models.Rooms{}
 
 	fmt.Println("hi", GlobalRooms)
 
@@ -28,7 +28,7 @@ func main() {
 	// handlers
 	gameService := games.NewService(rooms)
 	playerService := players.NewService()
-	socketService := sockets.Server{}
+	socketService := sockets.NewService(rooms)
 	gameService.RegisterHandlers(router)
 	playerService.RegisterHandlers(router)
 	router.GET("/health", healthCheck)

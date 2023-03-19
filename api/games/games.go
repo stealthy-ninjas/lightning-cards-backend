@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"stealthy-ninjas/lightning-cards/types"
+	"stealthy-ninjas/lightning-cards/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Service struct {
-	rooms types.Rooms
+	rooms models.Rooms
 }
 
-func NewService(rooms types.Rooms) *Service {
+func NewService(rooms models.Rooms) *Service {
 	return &Service{rooms: rooms}
 }
 
@@ -28,17 +28,13 @@ func (s *Service) get(gc *gin.Context) {
 
 func (s *Service) createRoom(gc *gin.Context) {
 	// todo(): get room uuid from backend table
+	fmt.Println("[gs] THING IS", s.rooms)
 	jsonBuf := map[string]string{}
 	jsonDecoder := json.NewDecoder(gc.Request.Body)
 	jsonDecoder.Decode(&jsonBuf)
-	fmt.Println("Hey!", jsonBuf)
 	// todo(): player uuid from database comes below
-	s.rooms["r1"] = types.Room{
-		Players: map[string]types.Player{
-			(jsonBuf["userName"]): types.Player{
-				Username: jsonBuf["userName"],
-			},
-		},
+	s.rooms["r1"] = &models.Room{
+		Players: make(map[string]models.Player),
 	}
 	gc.IndentedJSON(201, map[string]string{"roomId": "r1"})
 }
