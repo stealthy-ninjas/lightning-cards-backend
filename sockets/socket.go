@@ -67,9 +67,9 @@ func (s *service) handler(ctx context.Context, c *websocket.Conn) error {
 			Ws_connection: c,
 		}
 		rId := socketMsg.Body.(map[string]interface{})["roomId"].(string)
+		println("rid is", rId)
 		s.rooms[rId].Players[p.Username] = p
 		s.rooms[rId].Running = true
-		println(rId)
 
 		// todo(): alert other players of joining
 		for _, p := range s.rooms[rId].Players {
