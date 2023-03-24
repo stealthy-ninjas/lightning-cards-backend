@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"stealthy-ninjas/lightning-cards/api/games"
 	"stealthy-ninjas/lightning-cards/api/players"
@@ -12,27 +11,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// create the global state
-var GlobalRooms = make(models.Rooms)
-
 func main() {
 	rooms := models.Rooms{}
-
-	fmt.Println("hi", GlobalRooms)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
 	}))
 
-	// handlers
+	// register handlers
 	gameService := games.NewService(rooms)
-	playerService := players.NewService()
-	socketService := sockets.NewService(rooms)
 	gameService.RegisterHandlers(router)
+	playerService := players.NewService()
 	playerService.RegisterHandlers(router)
-	router.GET("/health", healthCheck)
+	socketService := sockets.NewService(rooms)
 	router.GET("/ws", socketService.ServeHttp)
+
+	router.GET("/health", healthCheck)
 
 	router.Run("localhost:8080")
 }

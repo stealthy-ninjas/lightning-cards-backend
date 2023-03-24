@@ -68,12 +68,14 @@ func (s *service) handler(ctx context.Context, c *websocket.Conn) error {
 		}
 		rId := socketMsg.Body.(map[string]interface{})["roomId"].(string)
 		println("rid is", rId)
+		fmt.Println("p is", p)
+		fmt.Println("rooms is", s.rooms[rId])
 		s.rooms[rId].Players[p.Username] = p
 		s.rooms[rId].Running = true
 
-		// todo(): alert other players of joining
+		// todo(): alert OTHER players of joining
 		for _, p := range s.rooms[rId].Players {
-			p.Ws_connection.Write(ctx, typ, []byte("hi hello"))
+			p.Ws_connection.Write(ctx, typ, []byte("player joined"))
 		}
 
 		lop, err := json.Marshal(s.rooms[rId].Players)

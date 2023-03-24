@@ -3,6 +3,7 @@ package games
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"stealthy-ninjas/lightning-cards/models"
@@ -33,12 +34,20 @@ func (s *Service) createRoom(gc *gin.Context) {
 	rand.Seed(time.Now().UnixMilli())
 	roomId := fmt.Sprint(rand.Int())
 	fmt.Println("roomId: ", roomId)
+
 	jsonBuf := map[string]string{}
-	jsonDecoder := json.NewDecoder(gc.Request.Body)
-	jsonDecoder.Decode(&jsonBuf)
+	jsonBytes, _ := ioutil.ReadAll(gc.Request.Body)
+	fmt.Println(jsonBytes)
+	json.Unmarshal(jsonBytes, &jsonBuf)
+	fmt.Println("henlo", jsonBuf)
+
+	// jsonDecoder := json.NewDecoder(gc.Request.Body)
+	// jsonDecoder.Decode(&jsonBuf)
+
 	// todo(): player uuid from database comes below
 	s.rooms[roomId] = &models.Room{
 		Players: make(map[string]models.Player),
 	}
+	// s.rooms[roomId].Players[jsonBuf["username"]] = models.Player{}
 	gc.IndentedJSON(201, map[string]string{"roomId": roomId})
 }
