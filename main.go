@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"stealthy-ninjas/lightning-cards/api/games"
 	"stealthy-ninjas/lightning-cards/api/players"
@@ -12,6 +13,8 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	rooms := models.Rooms{}
 
 	router := gin.Default()

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"stealthy-ninjas/lightning-cards/models"
@@ -22,7 +21,6 @@ func NewService(rooms models.Rooms) *service {
 }
 
 func (s *service) ServeHttp(gc *gin.Context) {
-	fmt.Println("THING IS", s.rooms)
 	w := gc.Writer
 	r := gc.Request
 	c, err := websocket.Accept(w, r, &websocket.AcceptOptions{
@@ -41,7 +39,7 @@ func (s *service) ServeHttp(gc *gin.Context) {
 		err = s.handler(r.Context(), c)
 
 		if websocket.CloseStatus(err) == websocket.StatusGoingAway {
-			println("closing")
+			log.Println("closing")
 			return
 		}
 	}
@@ -67,17 +65,18 @@ func (s *service) handler(ctx context.Context, c *websocket.Conn) error {
 			Ws_connection: c,
 		}
 		rId := socketMsg.Body.(map[string]interface{})["roomId"].(string)
-		println("rid is", rId)
-		fmt.Println("p is", p)
-		fmt.Println("rooms is", s.rooms[rId])
-		s.rooms[rId].Players[p.Username] = p
-		s.rooms[rId].Running = true
 
-		// todo(): alert OTHER players of joining
+		// alert other players that joining player has joined
+		joinEvent := &models.SocketMessage{Type: "new join", Body: p}
+		marshalledEvent, _ := json.Marshal(joinEvent)
 		for _, p := range s.rooms[rId].Players {
-			p.Ws_connection.Write(ctx, typ, []byte("player joined"))
+			p.Ws_connection.Write(ctx, typ, marshalledEvent)
 		}
 
+		// add this player to the room
+		s.rooms[rId].Players[p.Username] = p
+
+		// send list of players currently in room to joining player
 		lop, err := json.Marshal(s.rooms[rId].Players)
 		if err != nil {
 			log.Println(err)
@@ -90,48 +89,9 @@ func (s *service) handler(ctx context.Context, c *websocket.Conn) error {
 	}
 
 	return err
-
-	// buf := new(strings.Builder)
-	// _, err = io.Copy(buf, r)
-	// if err != nil {
-	// 	println("ERMG ERR")
-	// }
-
-	// println("clients msg was:", buf.String())
-	// switch buf.String() {
-	// case "hi":
-	// 	err = c.Write(ctx, typ, []byte("Client said hi"))
-	// 	if err != nil {
-	// 		println("ERMG ERR")
-	// 	}
-	// case "bye":
-	// 	err = c.Write(ctx, typ, []byte("Client said bye"))
-	// 	if err != nil {
-	// 		println("ERMG ERR")
-	// 	}
-	// default:
-	// 	err = c.Write(ctx, typ, []byte("Don't understand what client said"))
-	// 	if err != nil {
-	// 		println("ERMG ERR")
-	// 	}
-	// }
-
-	// //err = c.Write(ctx, typ, []byte("such cool"))
-
-	// return err
 }
 
 func jsonExtract(r io.Reader) *models.SocketMessage {
-	// buf := new(strings.Builder)
-	// _, err := io.Copy(buf, r)
-	// if err != nil {
-	// 	println("ERMG ERR")
-	// }
-
-	// println("clients msg was:", buf.String())
-
-	// j := &models.SocketMessage{}
-
 	bytesBuf := &bytes.Buffer{}
 	n, err := io.Copy(bytesBuf, r)
 	println(n)

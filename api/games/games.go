@@ -33,13 +33,10 @@ func (s *Service) createRoom(gc *gin.Context) {
 	// todo(): get room uuid from backend table
 	rand.Seed(time.Now().UnixMilli())
 	roomId := fmt.Sprint(rand.Int())
-	fmt.Println("roomId: ", roomId)
 
 	jsonBuf := map[string]string{}
 	jsonBytes, _ := ioutil.ReadAll(gc.Request.Body)
-	fmt.Println(jsonBytes)
 	json.Unmarshal(jsonBytes, &jsonBuf)
-	fmt.Println("henlo", jsonBuf)
 
 	// jsonDecoder := json.NewDecoder(gc.Request.Body)
 	// jsonDecoder.Decode(&jsonBuf)

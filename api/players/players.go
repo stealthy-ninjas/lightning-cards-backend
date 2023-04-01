@@ -1,7 +1,8 @@
 package players
 
 import (
-	"io/ioutil"
+	"io"
+	"log"
 	"net/http"
 	"stealthy-ninjas/lightning-cards/db"
 
@@ -21,9 +22,10 @@ func (s *Service) RegisterHandlers(router *gin.Engine) {
 
 func (s *Service) createUser(gc *gin.Context) {
 	res := make(map[string]string)
-	bodyAsBytes, err := ioutil.ReadAll(gc.Request.Body)
+	bodyAsBytes, err := io.ReadAll(gc.Request.Body)
 	jsonBody := string(bodyAsBytes)
-	println(jsonBody)
+	// todo(): add user to db according to username
+	log.Println(jsonBody)
 	if err != nil {
 		gc.IndentedJSON(http.StatusBadRequest, map[string]string{"message": "could not process request body"})
 	}
@@ -34,8 +36,7 @@ func (s *Service) createUser(gc *gin.Context) {
 	var uuid string
 	err = result.Scan(&uuid)
 	if err != nil {
-		println(err.Error())
+		log.Println(err.Error())
 	}
-	println(uuid)
 	gc.IndentedJSON(http.StatusOK, res)
 }
