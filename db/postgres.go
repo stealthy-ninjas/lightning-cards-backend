@@ -13,11 +13,11 @@ type Service struct {
 	Db *sql.DB
 }
 
+var service *Service
+
 func GetService() *Service {
 	return service
 }
-
-var service *Service
 
 func init() {
 	user := os.Getenv("POSTGRES_USER")

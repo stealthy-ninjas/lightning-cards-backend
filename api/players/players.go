@@ -1,7 +1,8 @@
 package players
 
 import (
-	"io"
+	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"stealthy-ninjas/lightning-cards/db"
@@ -10,33 +11,40 @@ import (
 )
 
 type Service struct {
+	db *sql.DB
 }
 
 func NewService() *Service {
-	return &Service{}
+	return &Service{
+		db: db.GetService().Db,
+	}
 }
 
 func (s *Service) RegisterHandlers(router *gin.Engine) {
-	router.GET("/players/create", s.createUser)
+	router.POST("/players/create", s.createUser)
 }
 
 func (s *Service) createUser(gc *gin.Context) {
-	res := make(map[string]string)
-	bodyAsBytes, err := io.ReadAll(gc.Request.Body)
-	jsonBody := string(bodyAsBytes)
-	// todo(): add user to db according to username
-	log.Println(jsonBody)
+	requestBody := make(map[string]string)
+	err := gc.BindJSON(&requestBody)
 	if err != nil {
-		gc.IndentedJSON(http.StatusBadRequest, map[string]string{"message": "could not process request body"})
+		log.Println(err.Error())
 	}
 
-	db := db.GetService().Db
-	result := db.QueryRow("INSERT INTO players (username, ready) VALUES ('eric', false) RETURNING id")
+	result := s.db.QueryRow(
+		fmt.Sprintf(
+			"INSERT INTO players (username, ready)"+
+				"VALUES ('%s', false) RETURNING id",
+			requestBody["userName"],
+		),
+	)
 
 	var uuid string
 	err = result.Scan(&uuid)
 	if err != nil {
 		log.Println(err.Error())
 	}
+
+	res := make(map[string]string)
 	gc.IndentedJSON(http.StatusOK, res)
 }

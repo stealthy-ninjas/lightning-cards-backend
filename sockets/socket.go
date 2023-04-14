@@ -93,8 +93,7 @@ func (s *service) handler(ctx context.Context, c *websocket.Conn) error {
 
 func jsonExtract(r io.Reader) *models.SocketMessage {
 	bytesBuf := &bytes.Buffer{}
-	n, err := io.Copy(bytesBuf, r)
-	println(n)
+	_, err := io.Copy(bytesBuf, r)
 	if err != nil {
 		log.Println(err)
 	}
