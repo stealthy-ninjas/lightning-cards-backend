@@ -31,16 +31,14 @@ func (s *Service) createUser(gc *gin.Context) {
 		log.Println(err.Error())
 	}
 
-	result := s.db.QueryRow(
+	var uuid string
+	err = s.db.QueryRow(
 		fmt.Sprintf(
 			"INSERT INTO players (username, ready)"+
 				"VALUES ('%s', false) RETURNING id",
 			requestBody["userName"],
 		),
-	)
-
-	var uuid string
-	err = result.Scan(&uuid)
+	).Scan(&uuid)
 	if err != nil {
 		log.Println(err.Error())
 	}

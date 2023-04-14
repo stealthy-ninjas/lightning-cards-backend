@@ -34,7 +34,3 @@ func init() {
 	}
 
 }
-
-// func NewService() *Service {
-// return &Service{}
-// }

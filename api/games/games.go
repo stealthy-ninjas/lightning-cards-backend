@@ -1,23 +1,25 @@
 package games
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
+	"log"
 	"net/http"
+	"stealthy-ninjas/lightning-cards/db"
 	"stealthy-ninjas/lightning-cards/models"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Service struct {
+	db    *sql.DB
 	rooms models.Rooms
 }
 
 func NewService(rooms models.Rooms) *Service {
-	return &Service{rooms: rooms}
+	return &Service{rooms: rooms, db: db.GetService().Db}
 }
 
 func (s *Service) RegisterHandlers(router *gin.Engine) {
@@ -30,9 +32,30 @@ func (s *Service) get(gc *gin.Context) {
 }
 
 func (s *Service) createRoom(gc *gin.Context) {
-	// todo(): get room uuid from backend table
-	rand.Seed(time.Now().UnixMilli())
-	roomId := fmt.Sprint(rand.Int())
+	requestBody := make(map[string]string)
+	err := gc.BindJSON(&requestBody)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	// todo(): get uuid of non hardcoded host
+	var uuid string
+	err = s.db.QueryRow(
+		"SELECT id FROM players WHERE username = 'Grater'",
+	).Scan(&uuid)
+	if err != nil {
+		log.Println(err)
+	}
+
+	var roomId string
+	err = s.db.QueryRow(
+		fmt.Sprintf(
+			"INSERT INTO rooms (game_status, host) VALUES (false, '%s') RETURNING id", uuid,
+		),
+	).Scan(&roomId)
+	if err != nil {
+		log.Println(err)
+	}
 
 	jsonBuf := map[string]string{}
 	jsonBytes, _ := ioutil.ReadAll(gc.Request.Body)
